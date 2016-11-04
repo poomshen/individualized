@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd
+">
+	<!-- 빈객체 생성 및 조립 (주입) -->
+	<context:component-scan base-package="ncontrollers" />
+
+	<!-- 게시판 관련 : DAO , controller -->
+	<bean id="noticedao" class="dao.NewNoticeDao"></bean>
+
+	<!-- 회원관련 : DAO , Controller -->
+	<bean id="newMemberDao" class="dao.NewMemberDao"></bean>
+
+	<!-- 대문 페이지 관련 -->
+	<!-- Tiles 설정하기 -->
+	<bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
+		<property name="definitions">
+			<list>
+				<value>/WEB-INF/spring/appServlet/Tiles.xml</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="urlBasedViewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass"	value="org.springframework.web.servlet.view.tiles2.TilesView" />
+	</bean>
+	<!-- Tiles 설정 END -->
+
+
+
+</beans>
+
+<!-- Scans the classpath for annotated components that will be auto-registered 
+	as Spring beans. By default, the Spring-provided @Component, @Repository, 
+	@Service, @Controller, @RestController, @ControllerAdvice, and @Configuration 
+	stereotypes will be detected. Note: This tag implies the effects of the 'annotation-config' 
+	tag, activating @Required, @Autowired, @PostConstruct, @PreDestroy, @Resource, 
+	@PersistenceContext and @PersistenceUnit annotations in the component classes, 
+	which is usually desired for autodetected components (without external configuration). 
+	Turn off the 'annotation-config' attribute to deactivate this default behavior, 
+	for example in order to use custom BeanPostProcessor definitions for handling 
+	those annotations. Note: You may use placeholders in package paths, but only 
+	resolved against system properties (analogous to resource paths). A component 
+	scan results in new bean definitions being registered; Spring's PropertySourcesPlaceholderConfigurer 
+	will apply to those bean definitions just like to regular bean definitions, 
+	but it won't apply to the component scan settings themselves. See javadoc 
+	for org.springframework.context.annotation.ComponentScan for information 
+	on code-based alternatives to bootstrapping component-scanning. -->
+
+
+
+
+
+

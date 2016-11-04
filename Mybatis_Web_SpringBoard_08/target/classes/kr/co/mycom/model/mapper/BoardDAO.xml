@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--  
+key point
+Mybatis 사용 프로젝트 진행시
+
+1. mapper namespace 이름 : DAO 가지는 interface 이름을 그대로
+2. <select id="" 이름을  interface 가지는 함수명과 동일
+result : interface 와 mapper 있으면 실행
+
+ int insertBoard(BoardDTO dto);
+ int updateBoard(BoardDTO dto);
+ int deleteBoard(BoardDTO dto);
+ 
+ List<BoardDTO> getBoardList(HashMap map);
+ BoardDTO getBoard(int num);
+ 
+ void updateHit(int num); //조회수 증가
+ int getBoardCount(); //전체 글 수
+ 
+ void insertReply(BoardDTO dto); //답변처리
+ void updateSort(BoardDTO dto);  //답변 처리(step(sort) 값 변경)
+-->
+
+<mapper namespace="kr.co.mycom.model.BoardDAO">
+ <!-- insertBoard(글 입력하기) -->
+ <insert id="insertBoard" parameterType="kr.co.mycom.model.BoardDTO">
+    insert into board(num,
+                      name,
+                      email,
+                      pwd,
+                      subject,
+                      content,
+                      regdate,
+                      hit,
+                      parent,
+                      sort,
+                      tab)
+      values(
+         (select nvl(max(num),0)+1 from board),
+             #{name},
+             #{email},
+             #{pwd},
+             #{subject},
+             #{content},
+             sysdate,
+             0,
+             (select nvl(max(num),0)+1 from board),
+             0,
+             0
+            )
+ </insert>
+ <!-- updateBoard(글수정하기)  -->
+ <update id="updateBoard" parameterType="kr.co.mycom.model.BoardDTO">
+  update board set name=#{name} , email=#{email} , subject=#{subject} ,
+                   content=#{content} , regdate=sysdate
+  where num=#{num} and pwd=#{pwd} 
+ </update>
+ <!-- deleteBoard(글삭제하기) -->
+ <delete id="deleteBoard" parameterType="kr.co.mycom.model.BoardDTO">
+  delete from board where num=#{num} and pwd=#{pwd}
+ </delete>
+ <!-- getBoardList(전체조회) -->
+ <select id="getBoardList" parameterType="hashmap" 
+                           resultType="kr.co.mycom.model.BoardDTO">
+       select * from 
+        (
+         select A.* ,ROWNUM r from (
+                   select * from board order by parent desc , sort 
+                                   ) A
+            
+        ) where r >= #{start} and r &lt;= #{end}   <!-- where sal <= 1000 [CDATA]-->                
+   
+ </select>
+ <!-- getBoard (글상세보기) -->
+ <select id="getBoard" parameterType="Integer" resultType="kr.co.mycom.model.BoardDTO">
+  select * from board where num=#{num}
+ </select>
+ <!-- updateHit(글 조회수 증가) -->
+ <update id="updateHit" parameterType="int">
+  update board
+  set hit = hit+1
+  where num=#{num}
+ </update>
+ <!-- getBoardCount(글 전체 건수) -->
+ <select id="getBoardCount" resultType="Integer">
+  select count(*) from board
+ </select>
+ <!-- insertReply(답글처리) -->
+ <insert id="insertReply" parameterType="kr.co.mycom.model.BoardDTO">
+   insert into board( num,
+                      name,
+                      email,
+                      pwd,
+                      subject,
+                      content,
+                      regdate,
+                      hit,
+                            parent,
+                            sort,
+                            tab)
+      values(
+         (select nvl(max(num),0)+1 from board),
+             #{name},
+             #{email},
+             #{pwd},
+             #{subject},
+             #{content},
+             sysdate,
+             0,
+             #{parent},
+             #{sort},
+             #{tab}
+            )
+ </insert>
+ <!-- updateSort(답글시 순번 처리하기) -->
+ <update id="updateSort" parameterType="kr.co.mycom.model.BoardDTO">
+  update board 
+  set sort = sort+1
+  where parent = #{parent} and sort > #{sort}
+ </update>
+ 
+ <update id="createTable" parameterType="kr.co.mycom.model.BoardDTO">
+  <!-- create table ${tname} (id int) -->
+     alter table ttt
+    add ${tname} varchar(20)
+    
+     
+    
+   
+ </update>
+ <!-- <![CDATA[varchar2(20)]]>  -->
+</mapper>

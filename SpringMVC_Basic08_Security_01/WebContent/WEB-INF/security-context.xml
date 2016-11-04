@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+     xmlns="http://www.springframework.org/schema/security"
+     xmlns:beans="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/security
+     http://www.springframework.org/schema/security/spring-security.xsd
+     ">
+
+     <http auto-config="true">
+     <csrf disabled="true"/>
+          <intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
+     </http>
+     <authentication-manager>
+          <authentication-provider>
+               <user-service>
+                    <user name="guest" password="guest" authorities="ROLE_USER"/>
+               </user-service>
+          </authentication-provider>
+     </authentication-manager>
+</beans:beans>
+<!--
+http://localhost:8090/SpringMVC_Basic08_Security_01
+security-context.xml 
+에서 설정한 계정과 암호를 입력하여 로그인한다. 
+authentication-manager 태그를 확인하면 된다.
+
+http 태그는 접근 권한설정하는 부분이고, 
+authentication-manager 태그는 접근 권한을 부여하는 부분이다.
+그래서 guest 계정으로 로그인 하면 ROLE_USER 라는 권한을 부여받게 된다.
+
+스프링 시큐리티에는 기본적인 로그인 부분을 제공하고 있기때문에 
+기본 설정만으로 로그인 로직을 구현할 수 있다. 
+
+만약 다양한 접근 권한을 구현하기를 원한다면 인터셉터를 더많이 추가하면 된다. 
+현재는 모든 애플리케이션에 ROLE_USER 권한이 있는 사용자만 접근할 수 있게 설정된다 -->

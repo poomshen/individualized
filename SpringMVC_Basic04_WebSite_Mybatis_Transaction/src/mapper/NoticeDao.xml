@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.NoticeDao">
+	
+	<select id="getCount" resultType="Integer">
+	<!-- public int getCount(String field, String query) 
+		 parameter 1개 이상인 경우 
+		 String field => param1
+		 String query => param2
+	-->
+		SELECT COUNT(*) CNT 
+		FROM NOTICES 
+		WHERE ${param1} LIKE '%${param2}%'
+	</select>
+	<select id="getNotices" resultType="vo.Notice">
+	    <!-- 
+	        public List<Notice> getNotices(int page, String field, String query) 
+	    	int srow = 1 + (page - 1) * 5; 
+			int erow = 5 + (page - 1) * 5; 
+			int page => param1
+			String field => param2
+			String query => param3
+	    -->
+		SELECT * FROM
+					 (SELECT ROWNUM NUM, N.* 
+					  FROM 
+					      ( SELECT * 
+					        FROM NOTICES 
+					        WHERE ${param2} LIKE '%${param3}%' ORDER BY REGDATE DESC
+				           ) N
+				     ) WHERE NUM BETWEEN 1 + (${param1} - 1) * 5 AND 5 + (${param1} - 1) * 5
+	</select>
+	<select id="getNotice" resultType="vo.Notice">
+	 <!--  
+			public Notice getNotice(String seq)
+			parameter 1개 생략 : 사용  paramter 이름 :seq
+			param1 은 안되요 (x)
+     -->
+     	SELECT * FROM NOTICES WHERE SEQ=#{seq}
+	</select>
+	<delete id="delete">
+	<!-- 
+		public int delete(String seq)
+	 -->
+	 	DELETE NOTICES WHERE SEQ=#{seq}
+	</delete>
+	<update id="update" >
+	<!--  
+		public int update(Notice notice)
+		Notice notice 타입 생략
+		
+		jdbcType=VARCHAR 값이 오지 않으면 > null 값으로 처리 하겠다
+	-->
+	UPDATE NOTICES 
+	SET TITLE=#{title}, 
+	    CONTENT=#{content}, 
+	    FILESRC=#{fileSrc,jdbcType=VARCHAR} , 
+	    FILESRC2=#{fileSrc2,jdbcType=VARCHAR}  
+	WHERE SEQ=#{seq}
+	</update>
+	<insert id="insert">
+	<!--  
+		public int insert(Notice n)
+		Notice n Parameter  타입 생략
+		INSERT INTO NOTICES(SEQ, TITLE, CONTENT, WRITER, REGDATE, HIT, FILESRC ,FILESRC2 )
+	    VALUES( (SELECT MAX(TO_NUMBER(SEQ))+1 FROM NOTICES), ?, ?, 'kosta', SYSDATE, 0, ?, ?)
+	-->
+	
+		<selectKey order="BEFORE" keyProperty="seq" resultType="String">
+			SELECT MAX(TO_NUMBER(SEQ))+1 FROM NOTICES
+		</selectKey>
+		INSERT INTO NOTICES(SEQ, TITLE, CONTENT, WRITER, REGDATE, HIT, FILESRC ,FILESRC2 )
+	    VALUES( #{seq}, #{title}, #{content}, 'kosta', SYSDATE, 0, #{fileSrc,jdbcType=VARCHAR}, #{fileSrc2,jdbcType=VARCHAR})
+	</insert>
+	
+	<update id="insertOfMemberPoint">
+		update member
+		set point = nvl(point,0) + 1
+		where userid=#{userid}
+	</update>
+</mapper>

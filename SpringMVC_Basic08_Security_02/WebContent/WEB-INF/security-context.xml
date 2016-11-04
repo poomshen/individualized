@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+     xmlns="http://www.springframework.org/schema/security"
+     xmlns:beans="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/security
+     http://www.springframework.org/schema/security/spring-security.xsd
+     ">
+
+    <http auto-config="true">
+    <csrf disabled="true"/>
+          <intercept-url pattern="/" access="hasAnyRole('ROLE_USER','ROLE_ADMIN')" />
+          <intercept-url pattern="/admin" access="hasRole('ROLE_ADMIN')" />
+          
+         <!--  
+            admin/ 접근하면 권한 체크를 하지 않고 접속이 가능해진다. 
+            이럴때 패턴을 /admin/** 주면된다. 하지만 하위 폴더에는 다른 권한을
+             줘야할 경우가 생길수가 있다. 
+             이럴때는 최상 권한을 제일 하위에 등록하고 그 위에 추가할 경로의 
+             권한을 추가 
+          <intercept-url pattern="/" access="ROLE_USER" />
+		  <intercept-url pattern="/admin/test" access="ROLE_USER" />
+		  <intercept-url pattern="/admin/**" access="ROLE_ADMIN" /> 
+		  
+		  -->
+     </http>
+
+     <authentication-manager>
+          <authentication-provider>
+               <user-service>
+                    <user name="guest" password="guest" authorities="ROLE_USER"/>
+                    <user name="admin" password="admin" authorities="ROLE_ADMIN"/>
+               </user-service>
+          </authentication-provider>
+     </authentication-manager>
+</beans:beans>
+<!--
+http://localhost:8090/SpringMVC_Basic08_Security_01
+중요한 것이 access 의 첫문자 패턴이 ROLE_ 시작해야한다. 
+변경이 가능하나, 구지 그럴필요가 없기때문에 
+모든 권한은 ROLE_ 시작할 수 있게 구성 -->

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:security="http://www.springframework.org/schema/security"
+ xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                     http://www.springframework.org/schema/beans/spring-beans.xsd
+  					 http://www.springframework.org/schema/security 
+  					 http://www.springframework.org/schema/security/spring-security.xsd">
+
+<!-- 1단계 인증 권한 테스트  
+	in-memory 방식 권한 처리
+	auto-config="true" : Spring Security 제공하는 환경 설정 가져 가겠다
+	                   : 자동환된 로그인 폼 제공 (분석)
+	실 적용 : DB사용하는 방식으로   
+	
+	<security:http auto-config="true">
+		<security:intercept-url pattern="/customer/noticeDetail.htm" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/customer/noticeReg.htm" access="hasRole('ROLE_ADMIN')" />
+	</security:http>
+	<security:authentication-manager>
+		<security:authentication-provider>
+			<security:user-service>
+				<security:user name="kglim" password="1004" authorities="ROLE_USER"/>
+				<security:user name="admin" password="1004" authorities="ROLE_USER,ROLE_ADMIN"/>
+			</security:user-service>
+		</security:authentication-provider>
+	</security:authentication-manager>
+	                 
+-->
+<!--  
+	2단계 테스트
+	1.로그인 화면 사용자 제어
+	2.login.jsp 제어
+	3.logout 처리
+
+    <security:http>
+	<security:csrf disabled="true"/>
+	<security:form-login login-page="/joinus/login.htm" 
+	                     authentication-failure-url="/joinus/login.htm?error"/>
+	<security:logout logout-success-url="/index.htm"/>                     
+	<security:intercept-url pattern="/customer/noticeDetail.htm" access="hasRole('ROLE_USER')"/>
+	<security:intercept-url pattern="/customer/noticeReg.htm" access="hasRole('ROLE_ADMIN')" />
+</security:http>
+<security:authentication-manager>
+	<security:authentication-provider>
+		<security:user-service>
+			<security:user name="kglim" password="1004" authorities="ROLE_USER"/>
+			<security:user name="admin" password="1004" authorities="ROLE_USER,ROLE_ADMIN"/>
+		</security:user-service>
+	</security:authentication-provider>
+</security:authentication-manager>
+-->
+<!-- 
+	3단계 (JDBC 연동)
+	테이블 구성 DB로 정보를 얻어와서 인증과 권한 처리
+	roll 테이블 생성 (권한 정보)
+	 login-processing-url=""
+ -->
+
+<security:http auto-config="true">
+	<security:csrf disabled="true"/>
+	<security:form-login login-page="/joinus/login.htm" 
+	                    
+	                     authentication-failure-url="/joinus/login.htm?error" />
+	<security:logout logout-success-url="/index.htm"/>                     
+	<!--
+	<security:intercept-url pattern="/customer/noticeDetail.htm" access="hasRole('ROLE_USER')"/>
+	<security:intercept-url pattern="/customer/noticeReg.htm" access="hasRole('ROLE_ADMIN')" /> 
+	-->
+	<security:intercept-url pattern="/customer/*Reg.htm" access="hasRole('ROLE_USER')"/>
+	<security:intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')"/>
+</security:http>
+<security:authentication-manager>
+	<security:authentication-provider>
+	
+		<security:jdbc-user-service  data-source-ref="driverManagerDataSource"
+			users-by-username-query="SELECT USERID,pwd AS PASSWORD,1 enabled FROM member WHERE userid=?"
+			authorities-by-username-query="select m.userid, r.ROLE_NAME 
+			                               from member m join roll r on m.userid = r.userid
+			                               where m.userid=?"
+		/>
+		<!-- <security:password-encoder hash="md5" base64="true" /> -->
+	</security:authentication-provider>
+</security:authentication-manager>
+</beans>

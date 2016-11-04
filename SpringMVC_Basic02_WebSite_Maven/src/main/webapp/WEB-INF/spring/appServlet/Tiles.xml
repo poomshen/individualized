@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+<tiles-definitions>
+	<!-- 
+		1단계 구성
+		단점 : 요청하는 jsp 개수 만큼 definition 만들어쟈 있어야 해요
+		VIEW 구서을 Tiles 위임
+		ex) customer.notice > content > notice.jsp
+		    customer.noticeReg > content > noticeReg.jsp
+	
+	
+  	<definition name="customer.notice" template="/WEB-INF/views/customer/inc/layout.jsp">
+    	<put-attribute name="title"   value="kosta notice list" />
+    	<put-attribute name="header"  value="/WEB-INF/views/inc/header.jsp" />
+    	<put-attribute name="footer"  value="/WEB-INF/views/inc/footer.jsp" />
+    	<put-attribute name="aside"   value="/WEB-INF/views/customer/inc/aside.jsp" />
+    	<put-attribute name="visual"  value="/WEB-INF/views/customer/inc/visual.jsp" />
+    	<put-attribute name="content" value="/WEB-INF/views/customer/notice.jsp" />
+  </definition>  
+  <definition name="customer.noticeReg" template="/WEB-INF/views/customer/inc/layout.jsp">
+    	<put-attribute name="title"   value="kosta notice list" />
+    	<put-attribute name="header"  value="/WEB-INF/views/inc/header.jsp" />
+    	<put-attribute name="footer"  value="/WEB-INF/views/inc/footer.jsp" />
+    	<put-attribute name="aside"   value="/WEB-INF/views/customer/inc/aside.jsp" />
+    	<put-attribute name="visual"  value="/WEB-INF/views/customer/inc/visual.jsp" />
+    	<put-attribute name="content" value="0" />
+  </definition>   
+   -->
+   <!-- 
+   	2단계 구성
+   	1단계 단점을 극복
+   	결과 : 중복된 자원을 쓰고 싶지 않아요
+   	       상속의 개념을 통해서
+    
+    <definition name="customer.notice" template="/WEB-INF/views/customer/inc/layout.jsp">
+    	<put-attribute name="title"   value="kosta notice list" />
+    	<put-attribute name="header"  value="/WEB-INF/views/inc/header.jsp" />
+    	<put-attribute name="footer"  value="/WEB-INF/views/inc/footer.jsp" />
+    	<put-attribute name="aside"   value="/WEB-INF/views/customer/inc/aside.jsp" />
+    	<put-attribute name="visual"  value="/WEB-INF/views/customer/inc/visual.jsp" />
+    	<put-attribute name="content" value="/WEB-INF/views/customer/notice.jsp" />
+  </definition>  
+  <definition name="customer.noticeReg" extends="customer.notice">
+    	<put-attribute name="title"   value="kosta noticeReg" />
+    	<put-attribute name="content" value="/WEB-INF/views/customer/noticeReg.jsp" />
+  </definition> 
+  -->
+  <!--  
+  	 3단계 구성
+  	 1,2 단계 단점을 극복
+  	 결과 : definition 개수를 최소화 하고 싶어요
+  	 
+  	 주의 사항
+  	 1. [폴더구조]가 명확해야 한다
+  	    (폴더 구조가 잘 정의 되지 않거나 복잡한 구조 1단계 , 2단계 적용)
+  	    
+  	 패턴을 활용하는 방법   
+  	 게시판(customer.*) : 폴더 개념 : customer폴더 아래 모든 파일
+  	 customer.* > notice
+  	 customer.* > noticeReg
+  	 customer.* > noticeDetail
+  	 customer.*.*.* => {1} , {2} , {3}  
+  	 
+  	 costomer.a.b.c => {1}   
+  -->
+  <!-- 
+   <definition name="customer.*" template="/WEB-INF/views/customer/inc/layout.jsp">
+    	<put-attribute name="title"   value="kosta notice list" />
+    	<put-attribute name="header"  value="/WEB-INF/views/inc/header.jsp" />
+    	<put-attribute name="footer"  value="/WEB-INF/views/inc/footer.jsp" />
+    	<put-attribute name="aside"   value="/WEB-INF/views/customer/inc/aside.jsp" />
+    	<put-attribute name="visual"  value="/WEB-INF/views/customer/inc/visual.jsp" />
+    	<put-attribute name="content" value="/WEB-INF/views/customer/{1}.jsp" />
+  </definition>
+    <definition name="joinus.*" template="/WEB-INF/views/customer/inc/layout.jsp">
+    	<put-attribute name="title"   value="kosta notice list" />
+    	<put-attribute name="header"  value="/WEB-INF/views/inc/header.jsp" />
+    	<put-attribute name="footer"  value="/WEB-INF/views/inc/footer.jsp" />
+    	<put-attribute name="aside"   value="/WEB-INF/views/joinus/inc/aside.jsp" />
+    	<put-attribute name="visual"  value="/WEB-INF/views/joinus/inc/visual.jsp" />
+    	<put-attribute name="content" value="/WEB-INF/views/joinus/{1}.jsp" />
+  </definition>    
+  -->
+  <!-- 
+  	 4단계 구성
+  	 3단계 응용
+  
+     > customer.notice
+     > joinus.join
+     
+     주의사항 
+     [UrlBase] 구성  함수에서 리턴되는 자원을가지고
+     Tiles 구성하도록
+     return > customer.notice
+            > customer.noticeReg
+     
+   -->
+   <definition name="home.*" template="/WEB-INF/views/inc/layout.jsp">
+	   	<put-attribute name="header"  value="/WEB-INF/views/inc/header.jsp" />
+    	<put-attribute name="footer"  value="/WEB-INF/views/inc/footer.jsp" />
+    	<put-attribute name="content" value="/WEB-INF/views/{1}.jsp" />
+  	</definition>
+    <definition name="*.*" template="/WEB-INF/views/{1}/inc/layout.jsp">
+    	<put-attribute name="title"   value="kosta notice list" />
+    	<put-attribute name="header"  value="/WEB-INF/views/inc/header.jsp" />
+    	<put-attribute name="css"  value="{2}.css" />
+    	<put-attribute name="footer"  value="/WEB-INF/views/inc/footer.jsp" />
+    	<put-attribute name="aside"   value="/WEB-INF/views/{1}/inc/aside.jsp" />
+    	<put-attribute name="visual"  value="/WEB-INF/views/{1}/inc/visual.jsp" />
+    	<put-attribute name="content" value="/WEB-INF/views/{1}/{2}.jsp" />
+  </definition>
+</tiles-definitions>   
